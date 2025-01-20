@@ -17,6 +17,8 @@ public class BookModel {
 
     @Column(nullable = false, unique = true)
     private String title;
+    @Column(nullable = false,columnDefinition = "integer default 0")
+    private int stock;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,6 +36,8 @@ public class BookModel {
 
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL)
     private ReviewModel review;
+
+
 
     public UUID getId() {
         return id;
@@ -73,5 +77,13 @@ public class BookModel {
 
     public void setReview(ReviewModel review) {
         this.review = review;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 }
