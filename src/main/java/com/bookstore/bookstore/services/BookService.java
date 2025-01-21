@@ -2,6 +2,7 @@ package com.bookstore.bookstore.services;
 
 import com.bookstore.bookstore.dtos.BookRecordDto;
 import com.bookstore.bookstore.exceptions.BookNotFoundException;
+import com.bookstore.bookstore.exceptions.DuplicateTitleExcepion;
 import com.bookstore.bookstore.exceptions.InsufficientStockExceptions;
 import com.bookstore.bookstore.models.BookModel;
 import com.bookstore.bookstore.models.ReviewModel;
@@ -30,6 +31,9 @@ public class BookService {
 
     @Transactional
     public BookModel saveBook (BookRecordDto bookRecordDto){
+        if (bookRepository.existsByTitle(bookRecordDto.title())){
+            throw new DuplicateTitleExcepion(" The title " + bookRecordDto.title() + "is already registered.");
+        }
         BookModel book = new BookModel();
         book.setTitle(bookRecordDto.title());
         book.setPublisher(publisherRepository.findById(bookRecordDto.publisherId()).get());
@@ -44,6 +48,7 @@ public class BookService {
 
         return bookRepository.save(book);
     }
+
 
     public List<BookModel> getAllBooks(){
         return bookRepository.findAll();

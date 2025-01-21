@@ -2,6 +2,7 @@ package com.bookstore.bookstore.controllers;
 
 import com.bookstore.bookstore.dtos.BookRecordDto;
 import com.bookstore.bookstore.exceptions.BookNotFoundException;
+import com.bookstore.bookstore.exceptions.DuplicateTitleExcepion;
 import com.bookstore.bookstore.exceptions.InsufficientStockExceptions;
 import com.bookstore.bookstore.models.BookModel;
 import com.bookstore.bookstore.services.BookService;
@@ -21,8 +22,15 @@ public class BookController {
     BookService bookService;
 
     @PostMapping
-    public ResponseEntity<BookModel> saveBook(@RequestBody BookRecordDto bookRecordDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.saveBook(bookRecordDto));
+    public ResponseEntity<?> saveBook(@RequestBody BookRecordDto bookRecordDto) {
+        try {
+            BookModel savedBook = bookService.saveBook(bookRecordDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
+        }catch (DuplicateTitleExcepion ex){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving book.");
+        }
     }
 
     @GetMapping
