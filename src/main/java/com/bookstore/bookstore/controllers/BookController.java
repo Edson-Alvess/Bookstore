@@ -9,6 +9,7 @@ import com.bookstore.bookstore.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,9 +54,14 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.OK).body("Book deleted successfully");
     }
 
+    @PostMapping("{id}/sellBook")
+    public ResponseEntity<?> sellBook(@PathVariable UUID id, @RequestParam int quantitySold){
+        try {
+            BookModel updateBook = bookService.sellBook(id,quantitySold);
+            return ResponseEntity.ok(updateBook);
+        }catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
-
-
-
-
+    }
 }

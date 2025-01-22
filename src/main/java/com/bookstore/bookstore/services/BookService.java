@@ -60,13 +60,13 @@ public class BookService {
     }
 
     @Transactional
-    public BookModel sellBook(UUID id) throws BookNotFoundException, InsufficientStockExceptions {
+    public BookModel sellBookd(UUID id, int quantity) throws BookNotFoundException, InsufficientStockExceptions {
         BookModel book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found !"));
-        if (book.getStock() > 0) {
-            book.setStock(book.getStock() - 1);
+        if (book.getStock() >= quantity) {
+            book.setStock(book.getStock() - quantity);
             return bookRepository.save(book);
         } else {
-            throw new InsufficientStockExceptions(" Insufficient stock ");
+            throw new InsufficientStockExceptions(" Insufficient stock for the requested quantity!");
         }
     }
 
@@ -78,4 +78,15 @@ public class BookService {
 
     }
 
+    @Transactional
+    public BookModel sellBook(UUID id, int quantitySold) throws BookNotFoundException, InsufficientStockExceptions {
+        BookModel book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found !"));
+        if (book.getStock() < quantitySold) {
+            throw new IllegalArgumentException("Sale cannot be made: quantity requested (" + quantitySold + ") is greater than the available stock (" + book.getStock() + ") for the product: " + book.getTitle());
+        }
+        book.setStock(book.getStock() - quantitySold);
+        return bookRepository.save(book);
+    }
+
 }
+
