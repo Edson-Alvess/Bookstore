@@ -33,6 +33,15 @@ public class BookController {
         }
     }
 
+         {
+
+    }
+
+    @PostMapping("/{id}/addStock")
+    public BookModel addStock(@PathVariable UUID id, @RequestParam(name = "quantityAdd") int quantityAdd) {
+        return bookService.addStock(id, quantityAdd);
+    }
+
     @GetMapping
     public ResponseEntity<List<BookModel>> getAllBooks() {
         return ResponseEntity.status(HttpStatus.OK).body(bookService.getAllBooks());
@@ -44,20 +53,9 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.OK).body("Book deleted successfully");
     }
 
-    @PostMapping("/sell/{id}")
-    public ResponseEntity<String> sellBook(@PathVariable UUID id) {
-        BookModel updatedBook = bookService.sellBook(id);
-        return ResponseEntity.ok("Book sold successfully! Remaining stock:" + updatedBook.getStock());
 
-    }
 
-    @ExceptionHandler(BookNotFoundException.class)
-    public ResponseEntity<String> handleBookNotFoundException(BookNotFoundException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
 
-    @ExceptionHandler(InsufficientStockExceptions.class)
-    public ResponseEntity<String> handleInsufficientStockException(InsufficientStockExceptions ex){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
+
+
 }

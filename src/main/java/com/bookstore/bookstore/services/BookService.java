@@ -30,8 +30,8 @@ public class BookService {
 
 
     @Transactional
-    public BookModel saveBook (BookRecordDto bookRecordDto){
-        if (bookRepository.existsByTitle(bookRecordDto.title())){
+    public BookModel saveBook(BookRecordDto bookRecordDto) {
+        if (bookRepository.existsByTitle(bookRecordDto.title())) {
             throw new DuplicateTitleExcepion(" The title " + bookRecordDto.title() + "is already registered.");
         }
         BookModel book = new BookModel();
@@ -50,24 +50,32 @@ public class BookService {
     }
 
 
-    public List<BookModel> getAllBooks(){
+    public List<BookModel> getAllBooks() {
         return bookRepository.findAll();
     }
 
     @Transactional
-    public void deleteBook(UUID id){
+    public void deleteBook(UUID id) {
         bookRepository.deleteById(id);
     }
 
     @Transactional
     public BookModel sellBook(UUID id) throws BookNotFoundException, InsufficientStockExceptions {
-        BookModel book = bookRepository.findById(id).orElseThrow(()-> new BookNotFoundException("Book not found !"));
-        if (book.getStock() > 0){
+        BookModel book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found !"));
+        if (book.getStock() > 0) {
             book.setStock(book.getStock() - 1);
             return bookRepository.save(book);
-        }else {
+        } else {
             throw new InsufficientStockExceptions(" Insufficient stock ");
         }
+    }
+
+    @Transactional
+    public BookModel addStock (UUID id, int quantityAdd) {
+        BookModel book = bookRepository.findById(id).orElseThrow(()-> new BookNotFoundException("Book not found!"));
+        book.setStock(book.getStock() + quantityAdd);
+        return bookRepository.save(book);
+
     }
 
 }
