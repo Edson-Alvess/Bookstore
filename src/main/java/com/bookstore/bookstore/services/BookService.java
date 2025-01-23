@@ -39,12 +39,13 @@ public class BookService {
         book.setPublisher(publisherRepository.findById(bookRecordDto.publisherId()).get());
         book.setAuthors(authorRepository.findAllById(bookRecordDto.authorIds()).stream().collect(Collectors.toSet()));
 
+        book.setStock(bookRecordDto.stock());
+
         ReviewModel reviewModel = new ReviewModel();
         reviewModel.setComment(bookRecordDto.reviewComment());
         reviewModel.setBook(book);
         book.setReview(reviewModel);
 
-        book.getStock();
 
         return bookRepository.save(book);
     }
