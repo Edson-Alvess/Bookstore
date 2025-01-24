@@ -3,6 +3,7 @@ package com.bookstore.bookstore.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -19,6 +20,8 @@ public class BookModel {
     private String title;
     @Column(nullable = false,columnDefinition = "integer default 0")
     private int stock;
+    @Column(nullable = false,columnDefinition = "integer default 0")
+    private BigDecimal price;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -85,5 +88,13 @@ public class BookModel {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 }

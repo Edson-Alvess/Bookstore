@@ -40,6 +40,7 @@ public class BookService {
         book.setAuthors(authorRepository.findAllById(bookRecordDto.authorIds()).stream().collect(Collectors.toSet()));
 
         book.setStock(bookRecordDto.stock());
+        book.setPrice(bookRecordDto.price());
 
         ReviewModel reviewModel = new ReviewModel();
         reviewModel.setComment(bookRecordDto.reviewComment());
