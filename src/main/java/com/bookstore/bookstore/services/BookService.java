@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,6 +88,14 @@ public class BookService {
             throw new IllegalArgumentException("Sale cannot be made: quantity requested (" + quantitySold + ") is greater than the available stock (" + book.getStock() + ") for the product: " + book.getTitle());
         }
         book.setStock(book.getStock() - quantitySold);
+        return bookRepository.save(book);
+    }
+
+    @Transactional
+    public BookModel updateBookPrice(UUID id, BigDecimal newPrice){
+        BookModel book = bookRepository.findById(id).orElseThrow(()-> new BookNotFoundException(" Book not found"));
+
+        book.setPrice(newPrice);
         return bookRepository.save(book);
     }
 

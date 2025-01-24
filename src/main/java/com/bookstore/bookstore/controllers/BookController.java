@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,5 +64,10 @@ public class BookController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
+    }
+
+    @PostMapping("{id}/addPrice")
+    public BookModel updateBookPrice(@PathVariable UUID id, @RequestParam(name = "newPrice") BigDecimal newPrice){
+        return bookService.updateBookPrice(id, newPrice);
     }
 }
