@@ -6,7 +6,9 @@ import com.bookstore.bookstore.exceptions.DuplicateTitleExcepion;
 import com.bookstore.bookstore.exceptions.InsufficientStockExceptions;
 import com.bookstore.bookstore.models.BookModel;
 import com.bookstore.bookstore.models.CashRegisterModel;
+import com.bookstore.bookstore.models.SalesRecordsModel;
 import com.bookstore.bookstore.repositories.CashRegisterRepository;
+import com.bookstore.bookstore.repositories.SalesRecordsRepository;
 import com.bookstore.bookstore.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ public class BookController {
     BookService bookService;
     @Autowired
     CashRegisterRepository cashRegisterRepository;
+    @Autowired
+    SalesRecordsRepository salesRecordsRepository;
 
     @PostMapping
     public ResponseEntity<?> saveBook(@RequestBody BookRecordDto bookRecordDto) {
@@ -68,9 +72,12 @@ public class BookController {
 
             CashRegisterModel cashRegisterModel = cashRegisterRepository.findFirstByOrderByIdAsc();
 
+            SalesRecordsModel lastSales = salesRecordsRepository.findTopByOrderBySaleDateDesc();
+
             Map<String, Object> response = new HashMap<>();
             response.put("book", soldBook);
             response.put("cashRegisterBalance", cashRegisterModel.getBalance());
+            response.put("saleDate", lastSales.getSaleDate());
 
             return ResponseEntity.ok(response);
 
