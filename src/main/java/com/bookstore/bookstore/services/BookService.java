@@ -5,15 +5,16 @@ import com.bookstore.bookstore.exceptions.BookNotFoundException;
 import com.bookstore.bookstore.exceptions.DuplicateTitleExcepion;
 import com.bookstore.bookstore.exceptions.InsufficientStockExceptions;
 import com.bookstore.bookstore.models.BookModel;
+import com.bookstore.bookstore.models.CashRegisterModel;
 import com.bookstore.bookstore.models.ReviewModel;
-import com.bookstore.bookstore.repositories.AuthorRepository;
-import com.bookstore.bookstore.repositories.BookRepository;
-import com.bookstore.bookstore.repositories.PublisherRepository;
+import com.bookstore.bookstore.models.SalesRecordsModel;
+import com.bookstore.bookstore.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,10 @@ public class BookService {
     AuthorRepository authorRepository;
     @Autowired
     PublisherRepository publisherRepository;
+    @Autowired
+    CashRegisterRepository cashRegisterRepository;
+    @Autowired
+    SalesRecordsRepository salesRecordsRepository;
 
 
     @Transactional
@@ -84,11 +89,26 @@ public class BookService {
     @Transactional
     public BookModel sellBook(UUID id, int quantitySold) throws BookNotFoundException, InsufficientStockExceptions {
         BookModel book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("Book not found !"));
+
         if (book.getStock() < quantitySold) {
             throw new IllegalArgumentException("Sale cannot be made: quantity requested (" + quantitySold + ") is greater than the available stock (" + book.getStock() + ") for the product: " + book.getTitle());
         }
+
         book.setStock(book.getStock() - quantitySold);
+
+        BigDecimal totalSaleValue = book.getPrice().multiply(BigDecimal.valueOf(quantitySold));
+
+        CashRegisterModel cashRegister = cashRegisterRepository.findFirstByOrderByIdAsc();
+
+        cashRegister.setBalance(cashRegister.getBalance().add(totalSaleValue));
+
+        cashRegisterRepository.save(cashRegister);
+
+        SalesRecordsModel sale = new SalesRecordsModel(book, quantitySold, totalSaleValue, LocalDateTime.now());
+        salesRecordsRepository.save(sale);
+
         return bookRepository.save(book);
+
     }
 
     @Transactional

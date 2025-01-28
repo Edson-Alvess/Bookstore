@@ -5,6 +5,8 @@ import com.bookstore.bookstore.exceptions.BookNotFoundException;
 import com.bookstore.bookstore.exceptions.DuplicateTitleExcepion;
 import com.bookstore.bookstore.exceptions.InsufficientStockExceptions;
 import com.bookstore.bookstore.models.BookModel;
+import com.bookstore.bookstore.models.CashRegisterModel;
+import com.bookstore.bookstore.repositories.CashRegisterRepository;
 import com.bookstore.bookstore.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -22,6 +26,8 @@ public class BookController {
 
     @Autowired
     BookService bookService;
+    @Autowired
+    CashRegisterRepository cashRegisterRepository;
 
     @PostMapping
     public ResponseEntity<?> saveBook(@RequestBody BookRecordDto bookRecordDto) {
@@ -58,10 +64,21 @@ public class BookController {
     @PostMapping("{id}/sellBook")
     public ResponseEntity<?> sellBook(@PathVariable UUID id, @RequestParam int quantitySold){
         try {
-            BookModel updateBook = bookService.sellBook(id,quantitySold);
-            return ResponseEntity.ok(updateBook);
-        }catch (IllegalArgumentException e){
+            BookModel soldBook = bookService.sellBook(id,quantitySold);
+
+            CashRegisterModel cashRegisterModel = cashRegisterRepository.findFirstByOrderByIdAsc();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("book", soldBook);
+            response.put("cashRegisterBalance", cashRegisterModel.getBalance());
+
+            return ResponseEntity.ok(response);
+
+        }catch (BookNotFoundException | IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during the sale." + e.getMessage());
         }
 
     }
